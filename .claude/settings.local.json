@@ -14,7 +14,10 @@
       "Bash(git rm *)",
       "Bash(git merge *)",
       "Bash(git show *)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(git push *)",
+      "Bash(git ls-tree *)",
+      "Bash(git rev-list *)"
     ]
   }
 }
