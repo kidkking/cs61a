@@ -52,6 +52,7 @@ class Insect:
 
     next_id = 0  # Every insect gets a unique id number
     damage = 0
+    is_waterproof = False
     # ADD CLASS ATTRIBUTES HERE
 
     def __init__(self, health: int, place: Place | None = None):
@@ -366,7 +367,19 @@ class ProtectorAnt(ContainerAnt):
     # END Problem 8c
 
 # BEGIN Problem 9
-# The TankAnt class
+class TankAnt(ContainerAnt):
+    name = 'Tank'
+    damage = 1
+    food_cost = 6
+    implemented = True
+
+    def __init__(self, health: int = 2):
+        super().__init__(health)
+    
+    def action(self, gamestate: GameState):
+        for bee in self.place.bees[:]:
+            bee.reduce_health(self.damage)
+        super().action(gamestate)
 # END Problem 9
 
 
@@ -377,11 +390,18 @@ class Water(Place):
         """Add an Insect to this place. If the insect is not waterproof, reduce
         its health to 0."""
         # BEGIN Problem 10
-        "*** YOUR CODE HERE ***"
+        if insect.is_waterproof:
+            super().add_insect(insect)
+        else:
+            insect.reduce_health(insect.health)
         # END Problem 10
 
 # BEGIN Problem 11
-# The ScubaThrower class
+class ScubaThrower(ThrowerAnt):
+    name = 'Scuba'
+    food_cost = 6
+    is_waterproof = True
+    implemented = True
 # END Problem 11
 
 
@@ -511,6 +531,7 @@ class Bee(Insect):
 
     name = 'Bee'
     damage = 1
+    is_waterproof = True
 
 
     def sting(self, ant: Ant):
