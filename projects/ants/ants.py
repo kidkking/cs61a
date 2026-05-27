@@ -107,6 +107,7 @@ class Ant(Insect):
     implemented = False  # Only implemented Ant classes should be instantiated
     food_cost = 0
     is_container = False
+    blocks_path = True
     # ADD CLASS ATTRIBUTES HERE
 
     def __init__(self, health: int = 1):
@@ -501,14 +502,17 @@ class NinjaAnt(Ant):
     name = 'Ninja'
     damage = 1
     food_cost = 5
+    blocks_path = False
     # OVERRIDE CLASS ATTRIBUTES HERE
     # BEGIN Problem EC 3
-    implemented = False   # Change to True to view in the GUI
+    implemented = True   # Change to True to view in the GUI
     # END Problem EC 3
 
     def action(self, gamestate: GameState):
         # BEGIN Problem EC 3
-        "*** YOUR CODE HERE ***"
+        if self.place.bees:
+            for bee in self.place.bees[:]:
+                bee.reduce_health(self.damage)
         # END Problem EC 3
 
 
@@ -517,9 +521,10 @@ class LaserAnt(ThrowerAnt):
 
     name = 'Laser'
     food_cost = 10
+    base_damage = 2
     # OVERRIDE CLASS ATTRIBUTES HERE
     # BEGIN Problem EC 4
-    implemented = False   # Change to True to view in the GUI
+    implemented = True   # Change to True to view in the GUI
     # END Problem EC 4
 
     def __init__(self, health: int = 1):
@@ -528,12 +533,32 @@ class LaserAnt(ThrowerAnt):
 
     def insects_in_front(self) -> dict[Bee, int]:
         # BEGIN Problem EC 4
-        return {}
+        p = self.place
+        d = {}
+        distance = 0
+        while not p.is_hive:
+            for bee in p.bees:
+                d[bee] = distance
+            if distance == 0:
+                if p.ant and p.ant is not self:
+                    d[p.ant] = distance
+            else:
+                if p.ant:
+                    d[p.ant] = distance
+                    if p.ant.is_container and p.ant.ant_contained:
+                        d[p.ant.ant_contained] = distance
+            p = p.entrance
+            distance += 1
+        return d
         # END Problem EC 4
 
     def calculate_damage(self, distance: int) -> float:
         # BEGIN Problem EC 4
-        return 0
+        damage = self.base_damage - 0.25 * distance - 0.0625 * self.insects_shot
+        if damage > 0 :
+            return damage
+        else:
+            return 0
         # END Problem EC 4
 
     def action(self, gamestate: GameState):
@@ -581,7 +606,7 @@ class Bee(Insect):
         """Return True if this Bee cannot advance to the next Place."""
         # Special handling for NinjaAnt
         # BEGIN Problem EC 3
-        return self.place is not None and self.place.ant is not None
+        return self.place is not None and self.place.ant is not None and self.place.ant.blocks_path
         # END Problem EC 3
 
     def action(self, gamestate: GameState):
